@@ -1,6 +1,36 @@
 androidApplication {
     namespace = "org.example.app"
 
+    // Enable Jetpack Compose via the Declarative Android ecosystem extension.
+    // This is the DCL-supported mechanism that ties into the Kotlin Compose plugin declared in settings.
+    compose {
+        enabled = true
+    }
+
+    // Configure test options and scopes using DCL 'testing' block
+    testing {
+        testOptions {
+            // Equivalent to: android { defaultConfig { testInstrumentationRunner = "..." } }
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+        dependencies {
+            // Unit test libraries
+            implementation("junit:junit:4.13.2")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            implementation("io.mockk:mockk:1.13.13")
+            implementation("androidx.arch.core:core-testing:2.2.0")
+
+            // Android instrumented and Compose UI test libraries
+            androidImplementation("androidx.test.ext:junit:1.2.1")
+            androidImplementation("androidx.test:core:1.6.1")
+            androidImplementation("androidx.test:runner:1.6.2")
+            androidImplementation("androidx.test:rules:1.6.1")
+            androidImplementation("androidx.compose.ui:ui-test-junit4:1.7.4")
+            // In traditional Gradle this would be debugImplementation; in DCL, use androidImplementation for instrumented tests
+            androidImplementation("androidx.compose.ui:ui-test-manifest:1.7.4")
+        }
+    }
+
     dependencies {
         // Compose dependencies explicitly pinned (BOM removed; DCL prefers explicit versions)
 
@@ -23,19 +53,5 @@ androidApplication {
         // Lifecycle
         implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
         implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
-
-        // Unit test dependencies
-        implementation("junit:junit:4.13.2")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-        implementation("io.mockk:mockk:1.13.13")
-        implementation("androidx.arch.core:core-testing:2.2.0")
-
-        // Android instrumented and Compose UI test dependencies
-        implementation("androidx.test.ext:junit:1.2.1")
-        implementation("androidx.test:core:1.6.1")
-        implementation("androidx.test:runner:1.6.2")
-        implementation("androidx.test:rules:1.6.1")
-        implementation("androidx.compose.ui:ui-test-junit4:1.7.4")
-        implementation("androidx.compose.ui:ui-test-manifest:1.7.4")
     }
 }

@@ -65,5 +65,6 @@ fun headerGradient(): Brush {
     )
 }
 
+@Composable
 // PUBLIC_INTERFACE
 fun Modifier.headerGradientBackground(): Modifier = this.background(headerGradient())

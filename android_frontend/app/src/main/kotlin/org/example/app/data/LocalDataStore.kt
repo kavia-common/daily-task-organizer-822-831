@@ -13,13 +13,13 @@ import org.example.app.model.Task
  * LocalDataStore persists tasks as a JSON array within SharedPreferences.
  * Uses Dispatchers.IO for blocking operations.
  */
-class LocalDataStore(context: Context) {
+class LocalDataStore(context: Context) : TaskDataSource {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     // PUBLIC_INTERFACE
-    suspend fun loadTasks(): List<Task> = withContext(Dispatchers.IO) {
+    override suspend fun loadTasks(): List<Task> = withContext(Dispatchers.IO) {
         val json = prefs.getString(KEY_TASKS, "[]") ?: "[]"
         val array = JSONArray(json)
         val list = mutableListOf<Task>()
@@ -31,7 +31,7 @@ class LocalDataStore(context: Context) {
     }
 
     // PUBLIC_INTERFACE
-    suspend fun saveTasks(tasks: List<Task>) = withContext(Dispatchers.IO) {
+    override suspend fun saveTasks(tasks: List<Task>) = withContext(Dispatchers.IO) {
         val arr = JSONArray()
         tasks.forEach { arr.put(it.toJson()) }
         prefs.edit(commit = true) {

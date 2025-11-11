@@ -71,7 +71,7 @@ class TaskRepositoryTest {
  * without bringing Android framework. Real LocalDataStore is Android-specific; this stub allows
  * us to provide a fake in unit tests.
  */
-open class LocalDataStoreStub {
-    open suspend fun loadTasks(): List<Task> = emptyList()
-    open suspend fun saveTasks(tasks: List<Task>) {}
+open class LocalDataStoreStub : TaskDataSource {
+    override suspend fun loadTasks(): List<Task> = emptyList()
+    override suspend fun saveTasks(tasks: List<Task>) {}
 }
