@@ -42,17 +42,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import org.example.app.model.Task
 import org.example.app.ui.theme.headerGradientBackground
 
@@ -61,18 +56,20 @@ import org.example.app.ui.theme.headerGradientBackground
 fun TaskListScreen(viewModel: TaskViewModel) {
     val tasks by viewModel.tasks.collectAsState()
     val error by viewModel.error.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+
+    // Avoid remember()/rememberCoroutineScope() to prevent Compose inline issues in this environment.
+    val snackbarHostState = SnackbarHostState()
 
     LaunchedEffect(error) {
         if (error != null) {
-            scope.launch { snackbarHostState.showSnackbar(error!!) }
+            snackbarHostState.showSnackbar(error!!)
             viewModel.dismissError()
         }
     }
 
-    var showDialog by remember { mutableStateOf(false) }
-    var editTask: Task? by remember { mutableStateOf(null) }
+    // UI state hoisted to ViewModel to avoid remember usage locally
+    val showDialog by viewModel.showDialog.collectAsState()
+    val editTask by viewModel.editingTask.collectAsState()
 
     Scaffold(
         topBar = {
@@ -99,7 +96,7 @@ fun TaskListScreen(viewModel: TaskViewModel) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { editTask = null; showDialog = true },
+                onClick = { viewModel.openAddDialog() },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.onPrimary)
@@ -124,7 +121,7 @@ fun TaskListScreen(viewModel: TaskViewModel) {
                         TaskItemView(
                             task = task,
                             onToggle = { viewModel.toggleComplete(task.id) },
-                            onEdit = { editTask = task; showDialog = true },
+                            onEdit = { viewModel.openEditDialog(task) },
                             onDelete = { viewModel.deleteTask(task.id) }
                         )
                     }
@@ -135,14 +132,14 @@ fun TaskListScreen(viewModel: TaskViewModel) {
         if (showDialog) {
             AddEditTaskDialog(
                 task = editTask,
-                onDismiss = { showDialog = false },
+                onDismiss = { viewModel.closeDialog() },
                 onConfirm = { title, desc ->
                     if (editTask == null) {
                         viewModel.addTask(title, desc)
                     } else {
                         viewModel.updateTask(editTask!!.id, title, desc)
                     }
-                    showDialog = false
+                    viewModel.closeDialog()
                 }
             )
         }
@@ -253,10 +250,11 @@ fun AddEditTaskDialog(
     onDismiss: () -> Unit,
     onConfirm: (String, String?) -> Unit
 ) {
-    var title by remember(task) { mutableStateOf(task?.title ?: "") }
-    var description by remember(task) { mutableStateOf(task?.description ?: "") }
+    var title = task?.title ?: ""
+    var description = task?.description ?: ""
     val isValid = title.isNotBlank()
 
+    // Note: Not using remember to maintain compatibility with current build setup.
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {

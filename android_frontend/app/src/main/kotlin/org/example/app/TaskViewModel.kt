@@ -19,6 +19,13 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    // UI state hoisted to the ViewModel to avoid remember() usage in Composables
+    private val _showDialog = MutableStateFlow(false)
+    val showDialog: StateFlow<Boolean> = _showDialog
+
+    private val _editingTask = MutableStateFlow<Task?>(null)
+    val editingTask: StateFlow<Task?> = _editingTask
+
     init {
         viewModelScope.launch {
             _tasks.value = repository.getTasks()
@@ -72,5 +79,23 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
     // PUBLIC_INTERFACE
     fun dismissError() {
         _error.value = null
+    }
+
+    // PUBLIC_INTERFACE
+    fun openAddDialog() {
+        _editingTask.value = null
+        _showDialog.value = true
+    }
+
+    // PUBLIC_INTERFACE
+    fun openEditDialog(task: Task) {
+        _editingTask.value = task
+        _showDialog.value = true
+    }
+
+    // PUBLIC_INTERFACE
+    fun closeDialog() {
+        _showDialog.value = false
+        _editingTask.value = null
     }
 }

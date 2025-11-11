@@ -2,8 +2,7 @@ androidApplication {
     namespace = "org.example.app"
 
     dependencies {
-        // Compose BOM to align versions across artifacts
-        implementation(platform("androidx.compose:compose-bom:2024.09.01"))
+        // Compose dependencies explicitly pinned (BOM removed; DCL prefers explicit versions)
 
         // Core Compose runtime (explicit versions to align with UI/Test artifacts)
         implementation("androidx.compose.runtime:runtime:1.7.4")
