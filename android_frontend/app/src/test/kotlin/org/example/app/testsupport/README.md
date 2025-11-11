@@ -1,0 +1,1 @@
+This directory contains test support fakes and facades for isolating Android framework dependencies (e.g., SharedPreferences) from unit tests. Production code is not modified; tests use these fakes via classes defined in test sources.

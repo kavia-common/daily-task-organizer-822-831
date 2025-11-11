@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package org.example.app
 
 import android.text.format.DateFormat
@@ -55,6 +57,7 @@ import org.example.app.model.Task
 import org.example.app.ui.theme.headerGradientBackground
 
 @Composable
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 fun TaskListScreen(viewModel: TaskViewModel) {
     val tasks by viewModel.tasks.collectAsState()
     val error by viewModel.error.collectAsState()
